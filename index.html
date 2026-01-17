@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Rotina | Produtividade & Controle</title>
+    <meta name="description"
+        content="Aplicação web para organização de rotina, tarefas, contas e lembretes com integração mobile-first">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/mobile.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563EB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <button class="menu-toggle" id="menuToggle" aria-label="Alternar menu">
+                    <span class="menu-icon"></span>
+                    <span class="menu-icon"></span>
+                    <span class="menu-icon"></span>
+                </button>
+
+                <h1 class="app-title">Organizador</h1>
+
+                <div class="header-actions">
+                    <button class="icon-button" id="searchButton" aria-label="Pesquisar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 19l-6-6m2-5A7 7 0 111 8a7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
+                    <button class="icon-button" id="filterButton" aria-label="Filtrar">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date Display -->
+            <div class="date-display" id="currentDate">
+                <!-- Populated by JavaScript -->
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+
+                <!-- Tab Content: Rotina -->
+                <section class="tab-content active" id="rotinaTab">
+                    <div class="section-header">
+                        <h2>Minha Rotina</h2>
+                        <span class="badge" id="rotinaCount">0</span>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" id="rotinaEmptyState">
+                        <div class="empty-state-icon">
+                            <svg width="64" height="64" fill="none" stroke="#6B7280" stroke-width="1.5">
+                                <path d="M12 19l9 5 9-5m-9 5v10m-9-5a9 9 0 1118 0 9 9 0 01-18 0z" />
+                            </svg>
+                        </div>
+                        <h3>Sua rotina está vazia</h3>
+                        <p>Adicione tarefas e compromissos para organizar seu dia</p>
+                        <button class="btn-primary" id="addFirstTask">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 4v16m8-8H4" />
+                            </svg>
+                            Criar primeira tarefa
+                        </button>
+                    </div>
+
+                    <!-- Cards Container -->
+                    <div class="cards-container" id="rotinaCards">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                </section>
+
+                <!-- Tab Content: Economia -->
+                <section class="tab-content" id="economiaTab">
+                    <div class="section-header">
+                        <h2>Economia & Contas</h2>
+                        <span class="badge" id="economiaCount">0</span>
+                    </div>
+
+                    <div class="empty-state" id="economiaEmptyState">
+                        <div class="empty-state-icon">
+                            <svg width="64" height="64" fill="none" stroke="#6B7280" stroke-width="1.5">
+                                <path
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3>Nenhuma conta registrada</h3>
+                        <p>Adicone contas e gastos para controlar suas finanças</p>
+                    </div>
+
+                    <div class="cards-container" id="economiaCards">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                </section>
+
+                <!-- Tab Content: Lembretes -->
+                <section class="tab-content" id="lembretesTab">
+                    <div class="section-header">
+                        <h2>Lembretes</h2>
+                        <span class="badge" id="lembretesCount">0</span>
+                    </div>
+
+                    <div class="empty-state" id="lembretesEmptyState">
+                        <div class="empty-state-icon">
+                            <svg width="64" height="64" fill="none" stroke="#6B7280" stroke-width="1.5">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3>Nenhum lembrete</h3>
+                        <p>Crie lembretes importantes para não esquecer de nada</p>
+                    </div>
+
+                    <div class="cards-container" id="lembretesCards">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                </section>
+
+                <!-- Tab Content: Links -->
+                <section class="tab-content" id="linksTab">
+                    <div class="section-header">
+                        <h2>Links Rápidos</h2>
+                        <span class="badge" id="linksCount">0</span>
+                    </div>
+
+                    <div class="empty-state" id="linksEmptyState">
+                        <div class="empty-state-icon">
+                            <svg width="64" height="64" fill="none" stroke="#6B7280" stroke-width="1.5">
+                                <path
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </div>
+                        <h3>Nenhum link salvo</h3>
+                        <p>Adicione links importantes para acesso rápido</p>
+                    </div>
+
+                    <div class="links-container" id="linksContainer">
+                        <!-- Links will be dynamically inserted here -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="bottom-navigation">
+            <button class="nav-item active" data-tab="rotina">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Rotina</span>
+            </button>
+
+            <button class="nav-item" data-tab="economia">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Economia</span>
+            </button>
+
+            <!-- Central Create Button -->
+            <button class="nav-create" id="createButton" aria-label="Criar novo item">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+
+            <button class="nav-item" data-tab="lembretes">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Lembretes</span>
+            </button>
+
+            <button class="nav-item" data-tab="links">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <span>Links</span>
+            </button>
+        </nav>
+
+        <!-- Desktop Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Organizador</h2>
+                <div class="sidebar-date" id="sidebarDate">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="sidebar-item active" data-tab="rotina">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <span>Rotina</span>
+                </button>
+
+                <button class="sidebar-item" data-tab="economia">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Economia</span>
+                </button>
+
+                <button class="sidebar-item" data-tab="lembretes">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Lembretes</span>
+                </button>
+
+                <button class="sidebar-item" data-tab="links">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <span>Links Rápidos</span>
+                </button>
+
+                <div class="sidebar-divider"></div>
+
+                <button class="sidebar-create" id="sidebarCreateButton">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Criar Novo</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Hoje</span>
+                        <span class="stat-value" id="todayCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Pendentes</span>
+                        <span class="stat-value" id="pendingCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Overlay for modals -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Card Modal (for create/edit) -->
+        <div class="modal" id="cardModal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Criar Novo Card</h3>
+                <button class="modal-close" id="modalClose" aria-label="Fechar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form class="modal-form" id="cardForm">
+                <input type="hidden" id="cardId">
+
+                <div class="form-group">
+                    <label for="cardTitle">Título *</label>
+                    <input type="text" id="cardTitle" placeholder="Ex: Pagar conta de luz" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cardDate">Data</label>
+                        <input type="date" id="cardDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardCategory">Categoria</label>
+                        <select id="cardCategory">
+                            <option value="">Selecione...</option>
+                            <option value="trabalho">Trabalho</option>
+                            <option value="pessoal">Pessoal</option>
+                            <option value="saude">Saúde</option>
+                            <option value="financeiro">Financeiro</option>
+                            <option value="casa">Casa</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cardStatus">Status</label>
+                        <select id="cardStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardPriority">Prioridade</label>
+                        <select id="cardPriority">
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardLink">App/Serviço (URL ou deep link)</label>
+                    <input type="url" id="cardLink" placeholder="Ex: https://meuapp.com ou app://abrir">
+                </div>
+
+                <div class="form-group">
+                    <label for="cardTab">Aba</label>
+                    <select id="cardTab">
+                        <option value="rotina">Rotina</option>
+                        <option value="economia">Economia</option>
+                        <option value="lembretes">Lembretes</option>
+                        <option value="links">Links Rápidos</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelButton">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="saveButton">Salvar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Deep Link Modal -->
+        <div class="modal" id="linkModal">
+            <div class="modal-header">
+                <h3>Abrir Aplicativo</h3>
+                <button class="modal-close" id="linkModalClose" aria-label="Fechar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="link-modal-icon">
+                    <svg width="48" height="48" fill="none" stroke="#2563EB" stroke-width="1.5">
+                        <path
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                </div>
+
+                <p id="linkModalText">Deseja abrir o aplicativo vinculado agora?</p>
+
+                <div class="link-modal-url" id="linkModalUrl">
+                    <!-- URL will be inserted here -->
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="cancelLinkButton">Cancelar</button>
+                <button type="button" class="btn-primary" id="confirmLinkButton">Abrir Agora</button>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal" id="deleteModal">
+            <div class="modal-header">
+                <h3>Confirmar Exclusão</h3>
+                <button class="modal-close" id="deleteModalClose" aria-label="Fechar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="delete-modal-icon">
+                    <svg width="48" height="48" fill="none" stroke="#EF4444" stroke-width="1.5">
+                        <path
+                            d="M12 9v2m0 4v.01M12 17v.01m9-5.01v.01M15 13v.01M15 17v.01m4.293-7.293l-1.414 1.414M19.828 6.172L18.414 7.586m-12.828.828l1.414-1.414M4.172 6.172L5.586 7.586M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>
+                </div>
+
+                <p>Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.</p>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="cancelDeleteButton">Cancelar</button>
+                <button type="button" class="btn-danger" id="confirmDeleteButton">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

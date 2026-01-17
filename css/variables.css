@@ -1,0 +1,232 @@
+/* variables.css - Design System do Organizador de Rotina */
+
+:root {
+    /* ===== CORES DO SISTEMA ===== */
+    
+    /* Cores primárias */
+    --color-primary: #2563EB;
+    --color-primary-light: #3B82F6;
+    --color-primary-lighter: #60A5FA;
+    --color-primary-dark: #1D4ED8;
+    --color-primary-darker: #1E40AF;
+    
+    /* Cores de estado */
+    --color-success: #22C55E;
+    --color-success-light: #4ADE80;
+    --color-success-dark: #16A34A;
+    
+    --color-warning: #FACC15;
+    --color-warning-light: #FDE047;
+    --color-warning-dark: #EAB308;
+    
+    --color-error: #EF4444;
+    --color-error-light: #F87171;
+    --color-error-dark: #DC2626;
+    
+    --color-info: #3B82F6;
+    --color-info-light: #60A5FA;
+    --color-info-dark: #1D4ED8;
+    
+    /* Escala de cinza */
+    --color-white: #FFFFFF;
+    --color-gray-50: #F9FAFB;
+    --color-gray-100: #F3F4F6;
+    --color-gray-200: #E5E7EB;
+    --color-gray-300: #D1D5DB;
+    --color-gray-400: #9CA3AF;
+    --color-gray-500: #6B7280;
+    --color-gray-600: #4B5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1F2937;
+    --color-gray-900: #111827;
+    --color-black: #000000;
+    
+    /* Cores de superfície */
+    --color-background: var(--color-gray-50);
+    --color-surface: var(--color-white);
+    --color-surface-secondary: var(--color-gray-100);
+    
+    /* Cores de texto */
+    --color-text-primary: var(--color-gray-900);
+    --color-text-secondary: var(--color-gray-600);
+    --color-text-tertiary: var(--color-gray-500);
+    --color-text-on-primary: var(--color-white);
+    --color-text-disabled: var(--color-gray-400);
+    
+    /* Cores de borda */
+    --color-border: var(--color-gray-200);
+    --color-border-hover: var(--color-gray-300);
+    --color-border-focus: var(--color-primary);
+    
+    /* Cores de overlay */
+    --color-overlay: rgba(0, 0, 0, 0.4);
+    --color-overlay-light: rgba(0, 0, 0, 0.1);
+    
+    /* ===== TIPOGRAFIA ===== */
+    
+    /* Família de fontes */
+    --font-family-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 
+                         'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 
+                         'Open Sans', 'Helvetica Neue', sans-serif;
+    
+    /* Tamanhos de fonte - Escala modular (1.125) */
+    --font-size-xs: 0.75rem;    /* 12px */
+    --font-size-sm: 0.875rem;   /* 14px */
+    --font-size-base: 1rem;     /* 16px */
+    --font-size-lg: 1.125rem;   /* 18px */
+    --font-size-xl: 1.25rem;    /* 20px */
+    --font-size-2xl: 1.5rem;    /* 24px */
+    --font-size-3xl: 1.875rem;  /* 30px */
+    --font-size-4xl: 2.25rem;   /* 36px */
+    
+    /* Alturas de linha */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    --line-height-loose: 2;
+    
+    /* Pesos de fonte */
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Espaçamento entre letras */
+    --letter-spacing-tight: -0.025em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.025em;
+    
+    /* ===== ESPAÇAMENTOS ===== */
+    
+    /* Sistema 4px base */
+    --space-unit: 0.25rem; /* 4px */
+    
+    /* Espaçamentos fixos */
+    --space-0: 0;
+    --space-1: calc(1 * var(--space-unit));  /* 4px */
+    --space-2: calc(2 * var(--space-unit));  /* 8px */
+    --space-3: calc(3 * var(--space-unit));  /* 12px */
+    --space-4: calc(4 * var(--space-unit));  /* 16px */
+    --space-5: calc(6 * var(--space-unit));  /* 24px */
+    --space-6: calc(8 * var(--space-unit));  /* 32px */
+    --space-7: calc(10 * var(--space-unit)); /* 40px */
+    --space-8: calc(12 * var(--space-unit)); /* 48px */
+    --space-9: calc(16 * var(--space-unit)); /* 64px */
+    --space-10: calc(20 * var(--space-unit)); /* 80px */
+    
+    /* ===== BORDAS E SOMBRAS ===== */
+    
+    /* Border radius */
+    --radius-none: 0;
+    --radius-sm: 0.25rem;  /* 4px */
+    --radius-md: 0.5rem;   /* 8px */
+    --radius-lg: 0.75rem;  /* 12px */
+    --radius-xl: 1rem;     /* 16px */
+    --radius-2xl: 1.5rem;  /* 24px */
+    --radius-full: 9999px;
+    
+    /* Borders */
+    --border-width-thin: 1px;
+    --border-width-medium: 2px;
+    --border-width-thick: 3px;
+    
+    /* Shadows - Mobile-first (mais suaves) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    
+    /* ===== Z-INDEX ===== */
+    --z-index-dropdown: 1000;
+    --z-index-sticky: 1020;
+    --z-index-fixed: 1030;
+    --z-index-modal-backdrop: 1040;
+    --z-index-modal: 1050;
+    --z-index-popover: 1060;
+    --z-index-tooltip: 1070;
+    --z-index-toast: 1080;
+    
+    /* ===== ANIMAÇÕES ===== */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* ===== LAYOUT ===== */
+    
+    /* Breakpoints - Mobile-first */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+    
+    /* Container widths */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    
+    /* App dimensions */
+    --app-max-width: 1200px;
+    --sidebar-width: 280px;
+    --bottom-nav-height: 72px;
+    --header-height-mobile: 112px;
+    --header-height-desktop: 80px;
+    
+    /* ===== COMPONENTES ESPECÍFICOS ===== */
+    
+    /* Card */
+    --card-padding: var(--space-4);
+    --card-border-radius: var(--radius-lg);
+    --card-background: var(--color-surface);
+    --card-shadow: var(--shadow-md);
+    
+    /* Button */
+    --btn-padding-y: var(--space-3);
+    --btn-padding-x: var(--space-5);
+    --btn-border-radius: var(--radius-md);
+    --btn-font-weight: var(--font-weight-medium);
+    
+    /* Input */
+    --input-padding-y: var(--space-3);
+    --input-padding-x: var(--space-4);
+    --input-border-radius: var(--radius-md);
+    --input-border: var(--border-width-thin) solid var(--color-border);
+    
+    /* Modal */
+    --modal-backdrop: var(--color-overlay);
+    --modal-border-radius: var(--radius-xl);
+    --modal-padding: var(--space-6);
+    --modal-max-width-mobile: calc(100% - var(--space-4) * 2);
+    --modal-max-width-desktop: 500px;
+    
+    /* Bottom Navigation */
+    --bottom-nav-bg: var(--color-surface);
+    --bottom-nav-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+    
+    /* Sidebar */
+    --sidebar-bg: var(--color-surface);
+    --sidebar-shadow: var(--shadow-md);
+    
+    /* Status colors for cards */
+    --status-pending: var(--color-warning);
+    --status-completed: var(--color-success);
+    --status-overdue: var(--color-error);
+    
+    /* Priority colors */
+    --priority-low: var(--color-success);
+    --priority-medium: var(--color-warning);
+    --priority-high: var(--color-error);
+    
+    /* Tab colors */
+    --tab-active-bg: var(--color-primary);
+    --tab-active-color: var(--color-text-on-primary);
+    --tab-inactive-bg: transparent;
+    --tab-inactive-color: var(--color-text-secondary);
+}

@@ -1,0 +1,226 @@
+/* reset.css - Reset moderno mobile-first para Organizador de Rotina */
+
+/* 1. Use a more intuitive box-sizing model */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* 2. Remove default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+/* 3. Allow percentage-based heights */
+html,
+body {
+    height: 100%;
+}
+
+/* 4. Improve text rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* 5. Improve media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+/* 6. Remove built-in form typography styles */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+/* 7. Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+/* 8. Create a root stacking context */
+#root,
+#__next {
+    isolation: isolate;
+}
+
+/* 9. Remove list styles on ul, ol elements with a list role */
+ul[role='list'],
+ol[role='list'] {
+    list-style: none;
+}
+
+/* 10. Remove default button styles */
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+}
+
+/* 11. Reset anchor tags */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* 12. Remove fieldset defaults */
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* 13. Remove default table spacing */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* 14. Improve scroll behavior for smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 15. Remove touch highlight on mobile */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 16. Improve focus visibility for accessibility */
+:focus-visible {
+    outline: 2px solid #2563EB;
+    outline-offset: 2px;
+}
+
+/* 17. Remove default details marker */
+details>summary {
+    list-style: none;
+}
+
+details>summary::-webkit-details-marker {
+    display: none;
+}
+
+/* 18. Reset textarea resize */
+textarea {
+    resize: vertical;
+}
+
+/* 19. Remove autofill background color in Chrome */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 20. Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* 21. Improve selection color */
+::selection {
+    background-color: rgba(37, 99, 235, 0.2);
+    color: inherit;
+}
+
+/* 22. Remove default date picker icon in Safari */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+/* 23. Ensure consistent line-height */
+body {
+    line-height: 1.5;
+}
+
+/* 24. Remove default dialog backdrop */
+dialog::backdrop {
+    background: none;
+}
+
+/* 25. Improve touch target size for mobile (minimum 44px) */
+button,
+input[type="submit"],
+input[type="button"],
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* 26. Prevent zoom on iOS inputs */
+@media screen and (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+        /* Prevents iOS zoom */
+    }
+}
+
+/* 27. Reset iframe borders */
+iframe {
+    border: 0;
+}
+
+/* 28. Remove default meter styles */
+meter {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* 29. Improve progress bar defaults */
+progress {
+    vertical-align: baseline;
+}
+
+/* 30. Reset sup and sub to not affect line-height */
+sup,
+sub {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
