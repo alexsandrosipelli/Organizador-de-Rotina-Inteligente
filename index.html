@@ -336,7 +336,6 @@
           </button>
 
           <button class="sidebar-item" data-tab="economia">
-          
             <svg
               width="20"
               height="20"
@@ -350,7 +349,22 @@
             </svg>
             <span>Economia</span>
           </button>
-            <a href="meutim://">Abrir Meu TIM</a>
+          <button onclick="abrirMeuTIM()">Abrir Meu TIM</button>
+
+          <script>
+            function abrirMeuTIM() {
+              const start = Date.now();
+              window.location.href = "meutim://";
+
+              setTimeout(() => {
+                // Se não abriu o app, manda pra Play Store
+                if (Date.now() - start < 1500) {
+                  window.location.href =
+                    "https://play.google.com/store/apps/details?id=br.com.tim.timbrasil";
+                }
+              }, 1000);
+            }
+          </script>
 
           <button class="sidebar-item" data-tab="lembretes">
             <svg
@@ -616,5 +630,3 @@
     <script type="module" src="js/app.js"></script>
   </body>
 </html>
-
-
