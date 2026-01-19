@@ -1,21 +1,10 @@
-// state.js - Gerenciamento de estado centralizado
+// state.js - Gerenciamento de estado centralizado (VERSÃO CORRIGIDA)
 
-import { getAllCards, getCardsByTab, getStats } from './storage.js';
+import { getAllCards, getStats } from './storage.js';
 
 /**
  * Estado global da aplicação
- * @typedef {Object} AppState
- * @property {Array} cards - Todos os cards da aplicação
- * @property {string} activeTab - Aba ativa ('rotina', 'economia', 'lembretes', 'links')
- * @property {string|null} selectedCardId - ID do card selecionado (null se nenhum)
- * @property {Object} modals - Estado dos modais
- * @property {boolean} isSearchVisible - Se a busca está visível
- * @property {string} searchQuery - Termo de busca atual
- * @property {Object} stats - Estatísticas dos cards
- * @property {boolean} isLoading - Se está carregando dados
  */
-
-// Estado inicial
 const initialState = {
     cards: [],
     activeTab: 'rotina',
@@ -23,8 +12,7 @@ const initialState = {
     modals: {
         cardModal: false,
         linkModal: false,
-        deleteModal: false,
-        searchModal: false
+        deleteModal: false
     },
     isSearchVisible: false,
     searchQuery: '',
@@ -41,25 +29,64 @@ const initialState = {
             links: 0
         }
     },
-    isLoading: true
+    isLoading: false
 };
 
 // Estado atual da aplicação
 let state = { ...initialState };
 
-// Listeners para observar mudanças de estado
-const listeners = [];
+// Listeners para observar mudanças de estado (Set para evitar duplicatas)
+const listeners = new Set();
 
 /**
  * Notifica todos os listeners sobre mudanças no estado
+ * @param {Object} oldState - Estado anterior
  */
-function notifyListeners() {
-    listeners.forEach(listener => listener(state));
+function notifyListeners(oldState) {
+    listeners.forEach(listener => listener(state, oldState));
+}
+
+/**
+ * Comparação eficiente de objetos (shallow compare)
+ */
+function hasStateChanged(newState, oldState) {
+    // Comparação direta para propriedades primitivas
+    if (newState.activeTab !== oldState.activeTab ||
+        newState.selectedCardId !== oldState.selectedCardId ||
+        newState.isSearchVisible !== oldState.isSearchVisible ||
+        newState.searchQuery !== oldState.searchQuery ||
+        newState.isLoading !== oldState.isLoading) {
+        return true;
+    }
+
+    // Comparação de arrays de cards (verifica comprimento e referência)
+    if (newState.cards.length !== oldState.cards.length || 
+        newState.cards !== oldState.cards) {
+        return true;
+    }
+
+    // Comparação de modais
+    const modalKeys = Object.keys(newState.modals);
+    for (const key of modalKeys) {
+        if (newState.modals[key] !== oldState.modals[key]) {
+            return true;
+        }
+    }
+
+    // Comparação de stats básicos
+    const statKeys = ['total', 'today', 'pending', 'completed', 'overdue'];
+    for (const key of statKeys) {
+        if (newState.stats[key] !== oldState.stats[key]) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
  * Retorna uma cópia do estado atual
- * @returns {AppState} Estado atual
+ * @returns {Object} Estado atual
  */
 export function getState() {
     return { ...state };
@@ -74,32 +101,32 @@ export function subscribe(callback) {
     if (typeof callback !== 'function') {
         throw new Error('Listener deve ser uma função');
     }
-    
-    listeners.push(callback);
-    
+
+    listeners.add(callback);
+
     // Retorna função para remover o listener
-    return function unsubscribe() {
-        const index = listeners.indexOf(callback);
-        if (index !== -1) {
-            listeners.splice(index, 1);
-        }
-    };
+    return () => listeners.delete(callback);
 }
 
 /**
  * Carrega o estado inicial da aplicação
- * @returns {Promise<AppState>} Estado carregado
+ * @returns {Promise<Object>} Estado carregado
  */
 export async function loadInitialState() {
+    const oldState = { ...state };
+    
     try {
-        setLoading(true);
-        
+        state = {
+            ...state,
+            isLoading: true
+        };
+
         // Carrega todos os cards do storage
         const cards = getAllCards();
-        
+
         // Atualiza estatísticas
         const stats = getStats();
-        
+
         // Atualiza estado
         state = {
             ...state,
@@ -107,17 +134,18 @@ export async function loadInitialState() {
             stats,
             isLoading: false
         };
-        
-        notifyListeners();
+
+        // Sempre notifica ao carregar estado inicial
+        notifyListeners(oldState);
         return getState();
-        
+
     } catch (error) {
         console.error('Erro ao carregar estado inicial:', error);
         state = {
             ...state,
             isLoading: false
         };
-        notifyListeners();
+        notifyListeners(oldState);
         return getState();
     }
 }
@@ -131,13 +159,13 @@ function updateState(updates) {
         console.warn('Tentativa de atualizar estado com dados inválidos');
         return;
     }
-    
+
     const oldState = { ...state };
     state = { ...state, ...updates };
-    
+
     // Notifica listeners apenas se houver mudanças reais
-    if (JSON.stringify(oldState) !== JSON.stringify(state)) {
-        notifyListeners();
+    if (hasStateChanged(state, oldState)) {
+        notifyListeners(oldState);
     }
 }
 
@@ -147,16 +175,18 @@ function updateState(updates) {
  */
 export function setActiveTab(tabName) {
     const validTabs = ['rotina', 'economia', 'lembretes', 'links'];
-    
+
     if (!validTabs.includes(tabName)) {
         console.warn(`Tentativa de definir aba inválida: ${tabName}`);
         return;
     }
-    
+
     if (state.activeTab !== tabName) {
-        updateState({ 
+        updateState({
             activeTab: tabName,
-            selectedCardId: null // Limpa card selecionado ao mudar de aba
+            selectedCardId: null,
+            isSearchVisible: false,
+            searchQuery: ''
         });
     }
 }
@@ -170,7 +200,7 @@ export function setSelectedCard(cardId) {
         console.warn('ID do card deve ser uma string ou null');
         return;
     }
-    
+
     updateState({ selectedCardId: cardId });
 }
 
@@ -183,46 +213,13 @@ export function updateCards(cards) {
         console.warn('Cards deve ser um array');
         return;
     }
-    
+
     const stats = getStats();
-    updateState({ 
+    updateState({
         cards,
         stats,
-        selectedCardId: null // Limpa seleção ao atualizar cards
+        selectedCardId: null
     });
-}
-
-/**
- * Atualiza um card específico no estado
- * @param {string} cardId - ID do card a atualizar
- * @param {Object} updates - Dados para atualizar
- */
-export function updateSingleCard(cardId, updates) {
-    if (!cardId || typeof cardId !== 'string') {
-        console.warn('ID do card inválido');
-        return;
-    }
-    
-    if (!updates || typeof updates !== 'object') {
-        console.warn('Dados de atualização inválidos');
-        return;
-    }
-    
-    const cards = [...state.cards];
-    const cardIndex = cards.findIndex(card => card.id === cardId);
-    
-    if (cardIndex === -1) {
-        console.warn(`Card não encontrado: ${cardId}`);
-        return;
-    }
-    
-    cards[cardIndex] = {
-        ...cards[cardIndex],
-        ...updates,
-        updatedAt: Date.now()
-    };
-    
-    updateCards(cards);
 }
 
 /**
@@ -234,9 +231,8 @@ export function addNewCard(cardData) {
         console.warn('Dados do card inválidos');
         return;
     }
-    
-    const cards = [...state.cards];
-    cards.push(cardData);
+
+    const cards = [...state.cards, cardData];
     updateCards(cards);
 }
 
@@ -249,8 +245,31 @@ export function removeCard(cardId) {
         console.warn('ID do card inválido');
         return;
     }
-    
+
     const cards = state.cards.filter(card => card.id !== cardId);
+    updateCards(cards);
+}
+
+/**
+ * Atualiza um card existente
+ * @param {string} cardId - ID do card a atualizar
+ * @param {Object} updates - Dados para atualizar
+ */
+export function updateCard(cardId, updates) {
+    if (!cardId || typeof cardId !== 'string') {
+        console.warn('ID do card inválido');
+        return;
+    }
+
+    if (!updates || typeof updates !== 'object') {
+        console.warn('Dados de atualização inválidos');
+        return;
+    }
+
+    const cards = state.cards.map(card => 
+        card.id === cardId ? { ...card, ...updates, updatedAt: Date.now() } : card
+    );
+    
     updateCards(cards);
 }
 
@@ -263,10 +282,10 @@ export function reorderCards(cardIds) {
         console.warn('IDs de cards devem ser um array');
         return;
     }
-    
+
     const cardsMap = new Map(state.cards.map(card => [card.id, card]));
     const orderedCards = [];
-    
+
     // Reordena conforme array de IDs
     cardIds.forEach(cardId => {
         const card = cardsMap.get(cardId);
@@ -274,51 +293,15 @@ export function reorderCards(cardIds) {
             orderedCards.push(card);
         }
     });
-    
+
     // Adiciona cards não especificados no final
     state.cards.forEach(card => {
         if (!cardIds.includes(card.id)) {
             orderedCards.push(card);
         }
     });
-    
-    updateCards(orderedCards);
-}
 
-/**
- * Filtra cards por termo de busca
- * @param {string} query - Termo de busca
- * @returns {Array} Cards filtrados
- */
-export function filterCardsBySearch(query) {
-    if (typeof query !== 'string') {
-        return [];
-    }
-    
-    const normalizedQuery = query.toLowerCase().trim();
-    
-    if (!normalizedQuery) {
-        return getCardsForActiveTab();
-    }
-    
-    return state.cards.filter(card => {
-        // Filtra por tab ativa
-        if (card.tab !== state.activeTab) {
-            return false;
-        }
-        
-        // Busca no título
-        if (card.title.toLowerCase().includes(normalizedQuery)) {
-            return true;
-        }
-        
-        // Busca na categoria
-        if (card.category && card.category.toLowerCase().includes(normalizedQuery)) {
-            return true;
-        }
-        
-        return false;
-    });
+    updateCards(orderedCards);
 }
 
 /**
@@ -326,7 +309,7 @@ export function filterCardsBySearch(query) {
  * @returns {Array} Cards da aba ativa
  */
 export function getCardsForActiveTab() {
-    return getCardsByTab(state.activeTab);
+    return state.cards.filter(card => card.tab === state.activeTab);
 }
 
 /**
@@ -337,40 +320,36 @@ export function getSelectedCard() {
     if (!state.selectedCardId) {
         return null;
     }
-    
+
     return state.cards.find(card => card.id === state.selectedCardId) || null;
 }
 
 /**
  * Controla a visibilidade de modais
- * @param {string} modalName - Nome do modal ('cardModal', 'linkModal', 'deleteModal', 'searchModal')
+ * @param {string} modalName - Nome do modal
  * @param {boolean} isVisible - Se o modal deve estar visível
  */
 export function setModalVisibility(modalName, isVisible) {
-    const validModals = ['cardModal', 'linkModal', 'deleteModal', 'searchModal'];
-    
+    const validModals = ['cardModal', 'linkModal', 'deleteModal'];
+
     if (!validModals.includes(modalName)) {
         console.warn(`Modal inválido: ${modalName}`);
         return;
     }
-    
+
     if (typeof isVisible !== 'boolean') {
         console.warn('Visibilidade do modal deve ser booleana');
         return;
     }
-    
+
     const modals = { ...state.modals };
     modals[modalName] = isVisible;
-    
-    // Limpa card selecionado ao fechar modal de card
-    if (modalName === 'cardModal' && !isVisible) {
-        updateState({ 
-            modals,
-            selectedCardId: null 
-        });
-    } else {
-        updateState({ modals });
-    }
+
+    updateState({ 
+        modals,
+        // Limpa card selecionado ao fechar modal de card
+        selectedCardId: (modalName === 'cardModal' && !isVisible) ? null : state.selectedCardId
+    });
 }
 
 /**
@@ -382,10 +361,10 @@ export function setSearchVisibility(isVisible) {
         console.warn('Visibilidade da busca deve ser booleana');
         return;
     }
-    
-    updateState({ 
+
+    updateState({
         isSearchVisible: isVisible,
-        searchQuery: isVisible ? state.searchQuery : '' // Limpa busca ao esconder
+        searchQuery: isVisible ? state.searchQuery : ''
     });
 }
 
@@ -398,49 +377,73 @@ export function setSearchQuery(query) {
         console.warn('Termo de busca deve ser uma string');
         return;
     }
-    
+
     updateState({ searchQuery: query });
 }
 
 /**
- * Define o estado de carregamento
- * @param {boolean} isLoading - Se está carregando
+ * Filtra cards por termo de busca
+ * @param {string} query - Termo de busca
+ * @returns {Array} Cards filtrados
  */
-export function setLoading(isLoading) {
-    if (typeof isLoading !== 'boolean') {
-        console.warn('Estado de carregamento deve ser booleano');
-        return;
+export function filterCardsBySearch(query) {
+    if (typeof query !== 'string') {
+        return getCardsForActiveTab();
     }
-    
-    updateState({ isLoading });
+
+    const normalizedQuery = query.toLowerCase().trim();
+
+    if (!normalizedQuery) {
+        return getCardsForActiveTab();
+    }
+
+    return state.cards.filter(card => {
+        // Filtra por tab ativa
+        if (card.tab !== state.activeTab) {
+            return false;
+        }
+
+        // Busca no título
+        if (card.title.toLowerCase().includes(normalizedQuery)) {
+            return true;
+        }
+
+        // Busca na categoria
+        if (card.category && card.category.toLowerCase().includes(normalizedQuery)) {
+            return true;
+        }
+
+        return false;
+    });
 }
 
 /**
  * Limpa o termo de busca
  */
 export function clearSearch() {
-    updateState({ 
+    updateState({
         searchQuery: '',
-        isSearchVisible: false 
+        isSearchVisible: false
     });
 }
 
 /**
- * Reseta o estado para os valores iniciais
- * (mantém apenas os cards do storage)
+ * Reseta o estado para os valores iniciais (mantém cards do storage)
  */
 export function resetState() {
     const cards = getAllCards();
     const stats = getStats();
-    
+    const oldState = { ...state };
+
     state = {
         ...initialState,
         cards,
-        stats,
-        isLoading: false
+        stats
     };
-    
-    notifyListeners();
+
+    if (hasStateChanged(state, oldState)) {
+        notifyListeners(oldState);
+    }
 }
 
 /**

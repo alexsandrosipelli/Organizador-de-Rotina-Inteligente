@@ -1,4 +1,4 @@
-/* service-worker.js
+ /* service-worker.js
    Service Worker básico para o Organizador de Rotina Inteligente
    Compatível com GitHub Pages
 */

@@ -1,30 +1,30 @@
 // modals.js - Gerenciamento de modais e interações
 
-import { 
-    getState, 
-    setSelectedCard, 
-    setModalVisibility, 
+import {
+    getState,
+    setSelectedCard,
+    setModalVisibility,
     updateCards,
-    getSelectedCard 
+    getSelectedCard
 } from './state.js';
-import { 
-    saveCard, 
-    updateCard, 
+import {
+    saveCard,
+    updateCard,
     deleteCard,
-    getAllCards 
+    getAllCards
 } from './storage.js';
-import { 
-    formatDateForInput, 
-    getToday, 
+import {
+    formatDateForInput,
+    getToday,
     isValidUrl,
     getAvailableCategories,
     getAvailableStatus,
-    getAvailablePriorities 
+    getAvailablePriorities
 } from './utils.js';
-import { 
-    updateExistingCard, 
-    removeCard, 
-    renderCards 
+import {
+    updateExistingCard,
+    removeCard,
+    renderCards
 } from './cards.js';
 
 // Referências aos elementos do DOM
@@ -66,7 +66,7 @@ function cacheModalElements() {
         linkModalText: document.getElementById('linkModalText'),
         linkModalUrl: document.getElementById('linkModalUrl')
     };
-    
+
     // Elementos do formulário
     formElements = {
         cardId: document.getElementById('cardId'),
@@ -92,11 +92,11 @@ function bindModalEvents() {
     modalElements.cancelLinkButton?.addEventListener('click', () => closeAllModals());
     modalElements.cancelDeleteButton?.addEventListener('click', () => closeAllModals());
     modalElements.overlay?.addEventListener('click', () => closeAllModals());
-    
+
     // Confirmar ações
     modalElements.confirmLinkButton?.addEventListener('click', confirmLinkOpen);
     modalElements.confirmDeleteButton?.addEventListener('click', confirmDelete);
-    
+
     // Fechar com ESC
     document.addEventListener('keydown', handleEscapeKey);
 }
@@ -106,7 +106,7 @@ function bindModalEvents() {
  */
 function bindFormEvents() {
     modalElements.cardForm?.addEventListener('submit', handleFormSubmit);
-    
+
     // Validação em tempo real
     formElements.cardTitle?.addEventListener('input', validateForm);
     formElements.cardLink?.addEventListener('input', validateForm);
@@ -137,20 +137,20 @@ function handleEscapeKey(e) {
 function trapFocus(e) {
     const state = getState();
     const activeModal = getActiveModal();
-    
+
     if (!activeModal || !state.modals[activeModal]) return;
-    
+
     const modalElement = modalElements[activeModal];
     if (!modalElement) return;
-    
+
     const focusableElements = modalElement.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     const firstFocusable = focusableElements[0];
     const lastFocusable = focusableElements[focusableElements.length - 1];
-    
+
     if (!firstFocusable) return;
-    
+
     if (e.target === firstFocusable && e.shiftKey) {
         e.preventDefault();
         lastFocusable.focus();
@@ -165,29 +165,29 @@ function trapFocus(e) {
  */
 export function closeAllModals() {
     const state = getState();
-    
+
     // Fecha todos os modais
     Object.keys(state.modals).forEach(modalName => {
         setModalVisibility(modalName, false);
     });
-    
+
     // Esconde overlay
     modalElements.overlay?.classList.remove('active');
-    
+
     // Remove classes dos modais
     Object.values(modalElements).forEach(element => {
         if (element && element.classList) {
             element.classList.remove('active');
         }
     });
-    
+
     // Limpa form
     resetForm();
-    
+
     // Limpa estado
     setSelectedCard(null);
     currentLinkToOpen = null;
-    
+
     // Remove foco do modal
     document.activeElement?.blur();
 }
@@ -199,7 +199,7 @@ export function closeAllModals() {
  */
 export function openCardModal(cardData = null, defaultTab = null) {
     closeAllModals();
-    
+
     // Preenche formulário
     if (cardData) {
         // Modo edição
@@ -209,7 +209,7 @@ export function openCardModal(cardData = null, defaultTab = null) {
         // Modo criação
         resetForm();
         modalElements.modalTitle.textContent = 'Criar Novo Card';
-        
+
         // Define valores padrão
         const state = getState();
         formElements.cardTab.value = defaultTab || state.activeTab;
@@ -218,12 +218,12 @@ export function openCardModal(cardData = null, defaultTab = null) {
         formElements.cardPriority.value = 'media';
         formElements.cardCategory.value = '';
     }
-    
+
     // Mostra modal
     setModalVisibility('cardModal', true);
     modalElements.cardModal.classList.add('active');
     modalElements.overlay.classList.add('active');
-    
+
     // Foco no primeiro campo
     setTimeout(() => {
         formElements.cardTitle.focus();
@@ -236,26 +236,26 @@ export function openCardModal(cardData = null, defaultTab = null) {
  */
 export function openLinkModal(card) {
     if (!card || !card.link) return;
-    
+
     closeAllModals();
-    
+
     // Configura modal
     const url = card.link;
     const isDeepLink = url.startsWith('app://') || url.startsWith('intent://');
     const displayUrl = isDeepLink ? 'Aplicativo móvel' : new URL(url).hostname;
-    
-    modalElements.linkModalText.textContent = isDeepLink 
+
+    modalElements.linkModalText.textContent = isDeepLink
         ? 'Deseja abrir o aplicativo vinculado agora?'
         : 'Deseja abrir o link externo agora?';
-    
+
     modalElements.linkModalUrl.textContent = displayUrl;
     currentLinkToOpen = url;
-    
+
     // Mostra modal
     setModalVisibility('linkModal', true);
     modalElements.linkModal.classList.add('active');
     modalElements.overlay.classList.add('active');
-    
+
     // Foco no botão cancelar por padrão (mais seguro)
     setTimeout(() => {
         modalElements.cancelLinkButton.focus();
@@ -268,13 +268,13 @@ export function openLinkModal(card) {
  */
 export function openDeleteModal(card) {
     if (!card) return;
-    
+
     closeAllModals();
-    
+
     setModalVisibility('deleteModal', true);
     modalElements.deleteModal.classList.add('active');
     modalElements.overlay.classList.add('active');
-    
+
     // Foco no botão cancelar por padrão
     setTimeout(() => {
         modalElements.cancelDeleteButton.focus();
@@ -294,7 +294,7 @@ function fillEditForm(card) {
     formElements.cardPriority.value = card.priority || 'media';
     formElements.cardLink.value = card.link || '';
     formElements.cardTab.value = card.tab || 'rotina';
-    
+
     // Valida form após preenchimento
     validateForm();
 }
@@ -310,10 +310,10 @@ function resetForm() {
     formElements.cardStatus.value = 'pendente';
     formElements.cardPriority.value = 'media';
     formElements.cardLink.value = '';
-    
+
     const state = getState();
     formElements.cardTab.value = state.activeTab;
-    
+
     // Remove mensagens de erro
     clearValidationErrors();
 }
@@ -324,15 +324,15 @@ function resetForm() {
  */
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
+
     if (!validateForm()) {
         showToast('Por favor, corrija os erros no formulário', 'error');
         return;
     }
-    
+
     const cardId = formElements.cardId.value;
     const isEditing = !!cardId;
-    
+
     const cardData = {
         title: formElements.cardTitle.value.trim(),
         date: formElements.cardDate.value || null,
@@ -342,10 +342,10 @@ async function handleFormSubmit(e) {
         link: formElements.cardLink.value.trim() || null,
         tab: formElements.cardTab.value
     };
-    
+
     try {
         let result;
-        
+
         if (isEditing) {
             // Atualização
             result = await updateExistingCard(cardId, cardData);
@@ -360,18 +360,18 @@ async function handleFormSubmit(e) {
                 const state = getState();
                 const updatedCards = [...state.cards, newCard];
                 updateCards(updatedCards);
-                
+
                 // Re-renderiza
                 renderCards();
-                
+
                 showToast('Card criado com sucesso!', 'success');
             }
         }
-        
+
         if (result !== false) {
             closeAllModals();
         }
-        
+
     } catch (error) {
         console.error('Erro ao salvar card:', error);
         showToast('Erro ao salvar card. Tente novamente.', 'error');
@@ -386,10 +386,10 @@ function validateForm() {
     let isValid = true;
     const title = formElements.cardTitle.value.trim();
     const link = formElements.cardLink.value.trim();
-    
+
     // Limpa erros anteriores
     clearValidationErrors();
-    
+
     // Valida título
     if (!title) {
         markFieldInvalid(formElements.cardTitle, 'Título é obrigatório');
@@ -398,13 +398,13 @@ function validateForm() {
         markFieldInvalid(formElements.cardTitle, 'Título muito longo (máx. 100 caracteres)');
         isValid = false;
     }
-    
+
     // Valida link (se preenchido)
     if (link && !isValidUrl(link)) {
         markFieldInvalid(formElements.cardLink, 'URL inválida');
         isValid = false;
     }
-    
+
     // Valida data (se preenchida)
     if (formElements.cardDate.value) {
         const date = new Date(formElements.cardDate.value);
@@ -413,10 +413,10 @@ function validateForm() {
             isValid = false;
         }
     }
-    
+
     // Atualiza estado do botão salvar
     modalElements.saveButton.disabled = !isValid;
-    
+
     return isValid;
 }
 
@@ -427,7 +427,7 @@ function validateForm() {
  */
 function markFieldInvalid(field, message) {
     field.classList.add('invalid');
-    
+
     // Adiciona mensagem de erro
     let errorElement = field.parentNode.querySelector('.error-message');
     if (!errorElement) {
@@ -438,7 +438,7 @@ function markFieldInvalid(field, message) {
         errorElement.style.marginTop = 'var(--space-1)';
         field.parentNode.appendChild(errorElement);
     }
-    
+
     errorElement.textContent = message;
 }
 
@@ -450,7 +450,7 @@ function clearValidationErrors() {
     Object.values(formElements).forEach(field => {
         if (field) {
             field.classList.remove('invalid');
-            
+
             // Remove mensagens de erro
             const errorElement = field.parentNode?.querySelector('.error-message');
             if (errorElement) {
@@ -458,7 +458,7 @@ function clearValidationErrors() {
             }
         }
     });
-    
+
     // Habilita botão salvar
     modalElements.saveButton.disabled = false;
 }
@@ -471,16 +471,16 @@ function confirmLinkOpen() {
         closeAllModals();
         return;
     }
-    
+
     try {
         // Tenta abrir o link
         window.location.href = currentLinkToOpen;
-        
+
         // Fecha modal após um pequeno delay
         setTimeout(() => {
             closeAllModals();
         }, 100);
-        
+
     } catch (error) {
         console.error('Erro ao abrir link:', error);
         showToast('Não foi possível abrir o link. Verifique se o aplicativo está instalado.', 'error');
@@ -494,26 +494,26 @@ function confirmLinkOpen() {
 async function confirmDelete() {
     const state = getState();
     const cardId = state.selectedCardId;
-    
+
     if (!cardId) {
         closeAllModals();
         return;
     }
-    
+
     try {
         const success = await removeCard(cardId);
-        
+
         if (success) {
             showToast('Card excluído com sucesso!', 'success');
         } else {
             showToast('Erro ao excluir card. Tente novamente.', 'error');
         }
-        
+
     } catch (error) {
         console.error('Erro ao excluir card:', error);
         showToast('Erro ao excluir card. Tente novamente.', 'error');
     }
-    
+
     closeAllModals();
 }
 
@@ -523,13 +523,13 @@ async function confirmDelete() {
  */
 function getActiveModal() {
     const state = getState();
-    
+
     for (const [modalName, isVisible] of Object.entries(state.modals)) {
         if (isVisible) {
             return modalName;
         }
     }
-    
+
     return null;
 }
 
@@ -544,12 +544,12 @@ function showToast(message, type = 'info') {
     if (existingToast) {
         existingToast.remove();
     }
-    
+
     // Cria novo toast
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
-    
+
     // Estilização adicional
     toast.style.cssText = `
         position: fixed;
@@ -569,22 +569,22 @@ function showToast(message, type = 'info') {
         font-size: var(--font-size-sm);
         font-weight: var(--font-weight-medium);
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     // Animação de entrada
     setTimeout(() => {
         toast.classList.add('show');
         toast.style.opacity = '1';
         toast.style.transform = 'translateX(-50%) translateY(0)';
     }, 10);
-    
+
     // Remove após 3 segundos
     setTimeout(() => {
         toast.classList.remove('show');
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-50%) translateY(20px)';
-        
+
         setTimeout(() => {
             toast.remove();
         }, 300);
@@ -597,7 +597,7 @@ function showToast(message, type = 'info') {
  */
 export function updateModalsFromState() {
     const state = getState();
-    
+
     // Atualiza visibilidade dos modais
     Object.entries(state.modals).forEach(([modalName, isVisible]) => {
         const modalElement = modalElements[modalName];
@@ -607,7 +607,7 @@ export function updateModalsFromState() {
                 modalElements.overlay.classList.add('active');
             } else {
                 modalElement.classList.remove('active');
-                
+
                 // Esconde overlay apenas se todos os modais estiverem fechados
                 const anyModalVisible = Object.values(state.modals).some(visible => visible);
                 if (!anyModalVisible) {
@@ -616,7 +616,7 @@ export function updateModalsFromState() {
             }
         }
     });
-    
+
     // Se cardModal está aberto, garante que o formulário está sincronizado
     if (state.modals.cardModal) {
         const selectedCard = getSelectedCard();
@@ -628,4 +628,5 @@ export function updateModalsFromState() {
             resetForm();
         }
     }
-}
+}// Adicione estas funções auxiliares no final do modals.js
+ 

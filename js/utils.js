@@ -1,11 +1,11 @@
-// utils.js - Utilitários puros para o Organizador de Rotina
+// utils.js - Utilitários puros para o Organizador de Rotina (VERSÃO CORRIGIDA)
 
 /**
  * Gera um ID único para novos cards
  * @returns {string} ID único no formato 'card-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
  */
 export function generateId() {
-    return 'card-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    return 'card-' + crypto.randomUUID?.() || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
@@ -18,6 +18,8 @@ export function generateId() {
  * @returns {string} Data formatada (DD/MM/YYYY)
  */
 export function formatDate(date) {
+    if (!date) return '';
+    
     const d = typeof date === 'string' ? new Date(date) : date;
 
     if (isNaN(d.getTime())) {
@@ -37,6 +39,8 @@ export function formatDate(date) {
  * @returns {string} Data no formato YYYY-MM-DD
  */
 export function formatDateForInput(date) {
+    if (!date) return '';
+    
     const d = typeof date === 'string' ? new Date(date) : date;
 
     if (isNaN(d.getTime())) {
@@ -65,6 +69,8 @@ export function getToday() {
  * @returns {boolean} True se for hoje
  */
 export function isToday(date) {
+    if (!date) return false;
+    
     const d = typeof date === 'string' ? new Date(date) : date;
     const today = new Date();
 
@@ -83,6 +89,8 @@ export function isToday(date) {
  * @returns {boolean} True se for passada
  */
 export function isPastDate(date) {
+    if (!date) return false;
+    
     const d = typeof date === 'string' ? new Date(date) : date;
     const today = new Date();
 
@@ -103,6 +111,8 @@ export function isPastDate(date) {
  * @returns {boolean} True se for futura
  */
 export function isFutureDate(date) {
+    if (!date) return false;
+    
     const d = typeof date === 'string' ? new Date(date) : date;
     const today = new Date();
 
@@ -123,6 +133,8 @@ export function isFutureDate(date) {
  * @returns {number} Dias restantes (negativo se passou)
  */
 export function daysUntil(date) {
+    if (!date) return Infinity;
+    
     const d = typeof date === 'string' ? new Date(date) : date;
     const today = new Date();
 
@@ -207,6 +219,8 @@ export function clamp(value, min, max) {
  * @returns {string} Texto seguro para HTML
  */
 export function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
@@ -218,13 +232,15 @@ export function escapeHtml(text) {
  * @returns {boolean} True se for uma URL válida
  */
 export function isValidUrl(url) {
-    if (!url || url.trim() === '') return false;
+    if (!url || typeof url !== 'string' || url.trim() === '') return false;
 
     try {
         const parsedUrl = new URL(url);
+        // Suporta http, https e protocolos customizados como app://
         return parsedUrl.protocol === 'http:' ||
             parsedUrl.protocol === 'https:' ||
-            parsedUrl.protocol === 'app:';
+            parsedUrl.protocol === 'app:' ||
+            parsedUrl.protocol === 'intent:';
     } catch {
         return false;
     }
@@ -236,6 +252,8 @@ export function isValidUrl(url) {
  * @returns {string} String normalizada
  */
 export function normalizeString(str) {
+    if (!str || typeof str !== 'string') return '';
+    
     return str
         .toLowerCase()
         .normalize('NFD')
@@ -251,6 +269,8 @@ export function normalizeString(str) {
  * @returns {Array} Array ordenado
  */
 export function sortByDate(array, dateField = 'date', ascending = true) {
+    if (!Array.isArray(array)) return [];
+    
     return [...array].sort((a, b) => {
         const dateA = new Date(a[dateField] || 0);
         const dateB = new Date(b[dateField] || 0);
@@ -267,6 +287,8 @@ export function sortByDate(array, dateField = 'date', ascending = true) {
  * @returns {Array} Array filtrado
  */
 export function filterByStatus(array, statusField = 'status', status) {
+    if (!Array.isArray(array)) return [];
+    
     return array.filter(item => item[statusField] === status);
 }
 
@@ -276,6 +298,8 @@ export function filterByStatus(array, statusField = 'status', status) {
  * @returns {Object} Cards agrupados por categoria
  */
 export function groupByCategory(cards) {
+    if (!Array.isArray(cards)) return {};
+    
     return cards.reduce((groups, card) => {
         const category = card.category || 'sem-categoria';
         if (!groups[category]) {
@@ -359,7 +383,7 @@ export function getPriorityColor(priority) {
  * @returns {string} String capitalizada
  */
 export function capitalize(str) {
-    if (!str) return '';
+    if (!str || typeof str !== 'string') return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
@@ -381,4 +405,104 @@ export function getNextWeek() {
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     return nextWeek;
+}
+
+/**
+ * Extrai o domínio de uma URL para exibição
+ * @param {string} url - URL completa
+ * @returns {string} Domínio da URL
+ */
+export function getDomainFromUrl(url) {
+    if (!url || typeof url !== 'string') return 'App';
+    
+    try {
+        if (url.startsWith('app://') || url.startsWith('intent://')) {
+            return 'App móvel';
+        }
+        
+        const urlObj = new URL(url);
+        return urlObj.hostname.replace('www.', '');
+    } catch {
+        return 'Link rápido';
+    }
+}
+
+/**
+ * Obtém o dia da semana em português
+ * @param {Date|string} date - Data
+ * @param {boolean} short - Formato curto
+ * @returns {string} Dia da semana
+ */
+export function getWeekday(date, short = false) {
+    if (!date) return '';
+    
+    const d = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(d.getTime())) return '';
+    
+    const weekdays = short 
+        ? ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+        : ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    
+    return weekdays[d.getDay()];
+}
+
+/**
+ * Formata hora para exibição
+ * @param {Date|string} date - Data/hora
+ * @returns {string} Hora formatada
+ */
+export function formatTime(date) {
+    if (!date) return '';
+    
+    const d = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(d.getTime())) return '';
+    
+    return d.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+}
+
+/**
+ * Verifica se um valor é vazio (null, undefined, string vazia, array vazio)
+ * @param {*} value - Valor a verificar
+ * @returns {boolean} True se vazio
+ */
+export function isEmpty(value) {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string') return value.trim() === '';
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === 'object') return Object.keys(value).length === 0;
+    return false;
+}
+
+/**
+ * Cria um delay promise
+ * @param {number} ms - Milisegundos
+ * @returns {Promise} Promise que resolve após o delay
+ */
+export function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Remove duplicatas de um array por propriedade
+ * @param {Array} array - Array
+ * @param {string} key - Chave para verificar duplicatas
+ * @returns {Array} Array sem duplicatas
+ */
+export function removeDuplicates(array, key = 'id') {
+    if (!Array.isArray(array)) return [];
+    
+    const seen = new Set();
+    return array.filter(item => {
+        const value = item[key];
+        if (seen.has(value)) {
+            return false;
+        }
+        seen.add(value);
+        return true;
+    });
 }

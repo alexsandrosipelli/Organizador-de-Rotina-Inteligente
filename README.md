@@ -1,1 +1,0 @@
-# Organizador-de-Rotina-Inteligente
